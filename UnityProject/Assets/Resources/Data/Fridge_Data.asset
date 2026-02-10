@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2aa06a6ae8f0546b5880c816edea2a, type: 3}
   m_Name: Fridge_Data
   m_EditorClassIdentifier: Assembly-CSharp::SmartObjectData
-  ObjectName: 
+  ObjectName: Fridge
   Affordances:
-  - ActionName: 
+  - ActionName: Eat
     TargetNeed: {fileID: 11400000, guid: e39628c217b9190419b9db0dafbbc0ff, type: 2}
-    Amount: 0.5
+    Amount: 1
     Duration: 3

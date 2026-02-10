@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b01b662526c71841827304d628b4dcb, type: 3}
-  m_Name: Enegry
+  m_Name: Hunger
   m_EditorClassIdentifier: Assembly-CSharp::NewNeed
-  Name: 
+  NeedName: Hunger
   VisualColor: {r: 1, g: 1, b: 1, a: 1}
-  BaseDecayRate: 0.05
+  BaseDecayRate: 0.02

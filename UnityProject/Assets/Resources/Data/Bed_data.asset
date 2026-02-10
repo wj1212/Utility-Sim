@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a2aa06a6ae8f0546b5880c816edea2a, type: 3}
   m_Name: Bed_data
   m_EditorClassIdentifier: Assembly-CSharp::SmartObjectData
-  ObjectName: 
+  ObjectName: Bed
   Affordances:
-  - ActionName: 
+  - ActionName: Sleep
     TargetNeed: {fileID: 11400000, guid: f9c1e6664c2b4a04398afa28d1f4b793, type: 2}
     Amount: 1
     Duration: 10
