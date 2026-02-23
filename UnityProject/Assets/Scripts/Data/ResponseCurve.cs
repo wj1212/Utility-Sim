@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewCurve", menuName = "Sim/Response Curve")]
-public class NewCurve : ScriptableObject
+public class ResponseCurve : ScriptableObject 
 {
     [Tooltip("X-Axis: Input Need (0-1), Y-Axis: Utility Score (0-1).")]
     public AnimationCurve Curve;

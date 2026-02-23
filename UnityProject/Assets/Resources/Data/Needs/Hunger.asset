@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NewNeed
   NeedName: Hunger
   VisualColor: {r: 1, g: 1, b: 1, a: 1}
-  BaseDecayRate: 0.02
+  BaseDecayRate: 0.07
