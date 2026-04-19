@@ -64,11 +64,16 @@ public class AgentMetabolism : MonoBehaviour
         {
             need.CurrentValue += amount;
             need.CurrentValue = Mathf.Clamp01(need.CurrentValue);
-            Debug.Log($"<color=cyan>[Metabolism]</color> {needName} increased by {amount}. New Value: {need.CurrentValue}");
         }
         else
         {
             Debug.LogWarning($"[Metabolism] Cannot find need named: {needName}. Check your ScriptableObject naming!");
         }
+    }
+
+    public float GetValue(string needName)
+    {
+        var need = Needs.Find(n => n.Type.NeedName == needName);
+        return need != null ? need.CurrentValue : 1f;
     }
 }
