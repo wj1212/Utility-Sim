@@ -1,0 +1,15 @@
+run_id,condition,time_s,agent,brain,from_action,to_action,is_interrupt,hunger,energy,winning_score,inertia_applied
+20260807_111646,demo,17.589,Baseline,Baseline,idle,Eat,0,0.296,0.384,,
+20260807_111646,demo,17.589,Utility,Utility,idle,Eat,0,0.296,0.384,0.714,0
+20260807_111646,demo,20.270,Utility,Utility,idle,Sleep,0,0.690,0.291,0.725,0
+20260807_111646,demo,20.349,Baseline,Baseline,idle,Sleep,0,0.686,0.288,,
+20260807_111646,demo,30.228,Utility,Utility,idle,Eat,0,0.292,0.442,0.723,0
+20260807_111646,demo,30.306,Baseline,Baseline,idle,Eat,0,0.288,0.440,,
+20260807_111646,demo,34.671,Utility,Utility,idle,Sleep,0,0.614,0.287,0.731,0
+20260807_111646,demo,34.750,Baseline,Baseline,idle,Sleep,0,0.610,0.284,,
+20260807_111646,demo,42.614,Utility,Utility,idle,Eat,0,0.296,0.509,0.714,0
+20260807_111646,demo,42.695,Baseline,Baseline,idle,Eat,0,0.293,0.506,,
+20260807_111646,demo,48.644,Baseline,Baseline,idle,Sleep,0,0.555,0.298,,
+20260807_111646,demo,49.066,Utility,Utility,idle,Sleep,0,0.539,0.283,0.737,0
+20260807_111646,demo,55.090,Baseline,Baseline,idle,Eat,0,0.297,0.573,,
+20260807_111646,demo,55.509,Utility,Utility,idle,Eat,0,0.282,0.558,0.740,0
