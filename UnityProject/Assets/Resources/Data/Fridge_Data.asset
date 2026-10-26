@@ -16,5 +16,5 @@ MonoBehaviour:
   Affordances:
   - ActionName: Eat
     TargetNeed: {fileID: 11400000, guid: e39628c217b9190419b9db0dafbbc0ff, type: 2}
-    Amount: 1
+    Amount: 0.5
     Duration: 2

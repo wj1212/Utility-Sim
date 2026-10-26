@@ -49,9 +49,11 @@ public class AgentStatsOverlay : MonoBehaviour
         DrawRect(new Rect(x, y, 4f, height), accent);
         // title bar
         DrawRect(new Rect(x + 4, y, PanelWidth - 4, 26f), new Color(accent.r, accent.g, accent.b, 0.25f));
-        GUI.Label(new Rect(x + 14, y + 4, PanelWidth - 20, 22f),
-            $"{core.AgentLabel}  ·  {(utility != null ? "UTILITY" : "BASELINE")}",
-            _title);
+        string brain = utility != null ? "YELLOW" : "RED";
+        string heading = core.AgentLabel.Equals(brain, System.StringComparison.OrdinalIgnoreCase)
+            ? brain
+            : $"{core.AgentLabel}  ·  {brain}";
+        GUI.Label(new Rect(x + 14, y + 4, PanelWidth - 20, 22f), heading, _title);
 
         float cy = y + 30f;
         string action = string.IsNullOrEmpty(core.CurrentActionName) ? "—" : core.CurrentActionName;
@@ -88,9 +90,7 @@ public class AgentStatsOverlay : MonoBehaviour
     {
         GUI.Label(new Rect(x, y, w, 16f), need.Type.NeedName, _body);
 
-        string rightText = utility != null
-            ? $"{need.CurrentValue:F2}   desire {utility.EvaluateCurve(need.Type, need.CurrentValue):F2}"
-            : $"{need.CurrentValue:F2}";
+        string rightText = $"{need.CurrentValue:F2}";
         var rightStyle = new GUIStyle(_bodyDim) { alignment = TextAnchor.UpperRight };
         GUI.Label(new Rect(x, y, w, 16f), rightText, rightStyle);
 

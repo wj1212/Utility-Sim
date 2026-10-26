@@ -16,5 +16,5 @@ MonoBehaviour:
   Affordances:
   - ActionName: Sleep
     TargetNeed: {fileID: 11400000, guid: f9c1e6664c2b4a04398afa28d1f4b793, type: 2}
-    Amount: 1
+    Amount: 0.5
     Duration: 5
