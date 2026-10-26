@@ -32,6 +32,21 @@ public class AgentMovement : MonoBehaviour
 
     public bool IsArrived() => !_isMoving;
 
+    /// <summary>Halts movement immediately. Used when resetting between runs.</summary>
+    public void Stop()
+    {
+        _isMoving = false;
+        if (_rb != null) _rb.linearVelocity = Vector2.zero;
+    }
+
+    /// <summary>Teleports the agent and clears any movement in progress.</summary>
+    public void Teleport(Vector2 position)
+    {
+        Stop();
+        if (_rb != null) _rb.position = position;
+        transform.position = new Vector3(position.x, position.y, transform.position.z);
+    }
+
     void FixedUpdate()
     {
         if (!_isMoving) return;

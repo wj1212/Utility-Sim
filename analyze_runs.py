@@ -67,15 +67,17 @@ def config_signature(run_dir, condition, run_id):
     path = os.path.join(run_dir, f"config_{condition}_{run_id}.csv")
     if not os.path.isfile(path):
         return None
-    skip = {"run_id", "condition", "recorded_at"}
+    # Dropped because they vary per repeat rather than defining the condition.
+    skip = {"run_id", "condition", "recorded_at", "seed"}
     pairs = []
     with open(path, encoding="utf-8") as fh:
         for line in fh:
             if "," not in line:
                 continue
             key, value = line.strip().split(",", 1)
-            if key not in skip:
-                pairs.append((key, value))
+            if key in skip or ".initial." in key:
+                continue
+            pairs.append((key, value))
     return tuple(sorted(pairs))
 
 

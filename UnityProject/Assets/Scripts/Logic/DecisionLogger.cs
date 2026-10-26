@@ -6,7 +6,10 @@ using UnityEngine;
 
 /// <summary>
 /// Records every decision change and periodic need samples for all agents in the scene.
-/// Drop this on an empty GameObject and press Play. Writes CSV files to RunData/ at the project root.
+///
+/// Two ways to use it. Leave AutoStart on and press Play for a single recorded run, or
+/// turn AutoStart off and let AblationRunner drive it, calling BeginRun and EndRun once
+/// per condition so each condition lands in its own set of files.
 /// </summary>
 public class DecisionLogger : MonoBehaviour
 {
@@ -22,16 +25,19 @@ public class DecisionLogger : MonoBehaviour
     }
 
     [Header("Run Settings")]
-    [Tooltip("Label written into every row. Use this to name the condition, e.g. full_utility or curves_only.")]
+    [Tooltip("Start recording as soon as Play begins. Turn this off when AblationRunner drives the logger.")]
+    public bool AutoStart = true;
+
+    [Tooltip("Label written into every row and used as part of the filename.")]
     public string ConditionLabel = "full";
 
-    [Tooltip("Seconds of simulated time to record before the run stops automatically. 0 records until you stop Play.")]
+    [Tooltip("Seconds of simulated time per run. 0 records until something else stops it.")]
     public float RunDuration = 300f;
 
-    [Tooltip("Playback speed multiplier. 1 = real time. 10 means a 300-second run finishes in 30 real seconds. Recorded timestamps stay in simulated seconds either way.")]
+    [Tooltip("Playback speed. Only applied when this component starts the run itself.")]
     [Range(1f, 20f)] public float TimeScale = 1f;
 
-    [Tooltip("Seconds between need-value samples written to the needs file.")]
+    [Tooltip("Seconds between need samples.")]
     public float SampleInterval = 1f;
 
     [Header("Output")]
@@ -47,12 +53,33 @@ public class DecisionLogger : MonoBehaviour
     private StreamWriter _needWriter;
     private string _runId;
     private float _sampleTimer;
-    private bool _finished;
+    private bool _running;
+    private string _outputDir;
+    private int _seed = -1;
+
+    public bool IsRunning => _running;
+    public string OutputDirectory => _outputDir;
 
     void Start()
     {
-        _runId = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        Discover();
+        if (_tracks.Count == 0)
+        {
+            Debug.LogError("[DecisionLogger] No AgentCore found in the scene. Nothing to record.");
+            enabled = false;
+            return;
+        }
 
+        if (AutoStart)
+        {
+            Time.timeScale = TimeScale;
+            BeginRun(ConditionLabel, -1, null);
+        }
+    }
+
+    private void Discover()
+    {
+        _tracks.Clear();
         foreach (var core in FindObjectsByType<AgentCore>(FindObjectsSortMode.None))
         {
             var track = new AgentTrack
@@ -65,96 +92,67 @@ public class DecisionLogger : MonoBehaviour
             _tracks.Add(track);
         }
 
-        if (_tracks.Count == 0)
-        {
-            Debug.LogError("[DecisionLogger] No AgentCore found in the scene. Nothing to record.");
-            enabled = false;
-            return;
-        }
-
-        string dir = Path.Combine(Application.dataPath, "..", OutputFolder);
-        Directory.CreateDirectory(dir);
-
-        _decisionWriter = new StreamWriter(Path.Combine(dir, $"decisions_{ConditionLabel}_{_runId}.csv"));
-        _decisionWriter.WriteLine("run_id,condition,time_s,agent,brain,from_action,to_action,is_interrupt,hunger,energy,winning_score,inertia_applied");
-
-        _needWriter = new StreamWriter(Path.Combine(dir, $"needs_{ConditionLabel}_{_runId}.csv"));
-        _needWriter.WriteLine("run_id,condition,time_s,agent,brain,need,value");
-
-        WriteConfigManifest(dir);
-
-        Time.timeScale = TimeScale;
-
-        Debug.Log($"[DecisionLogger] Recording {_tracks.Count} agent(s) at {TimeScale}x to {Path.GetFullPath(dir)}");
+        _outputDir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", OutputFolder));
+        Directory.CreateDirectory(_outputDir);
     }
 
     /// <summary>
-    /// Records every parameter that shaped this run, so a CSV can always be traced
-    /// back to the configuration that produced it.
+    /// Opens a fresh set of files and starts recording. Pass -1 for seed when the run is
+    /// not seeded. extraConfig is appended verbatim to the manifest, one key,value per line.
     /// </summary>
-    private void WriteConfigManifest(string dir)
+    public void BeginRun(string label, int seed, string extraConfig)
     {
-        var m = new StringBuilder();
-        m.AppendLine($"run_id,{_runId}");
-        m.AppendLine($"condition,{ConditionLabel}");
-        m.AppendLine($"run_duration_s,{F(RunDuration)}");
-        m.AppendLine($"time_scale,{F(TimeScale)}");
-        m.AppendLine($"sample_interval_s,{F(SampleInterval)}");
-        m.AppendLine($"unity_version,{Application.unityVersion}");
-        m.AppendLine($"recorded_at,{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+        if (_running) EndRun();
+        if (_tracks.Count == 0) Discover();
 
+        ConditionLabel = label;
+        _runId = System.DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+        ElapsedTime = 0f;
+        TotalDecisions = 0;
+        _sampleTimer = 0f;
+
+        foreach (var t in _tracks)
+        {
+            t.LastAction = t.Core.CurrentActionName;
+            t.DecisionCount = 0;
+            t.InterruptCount = 0;
+        }
+
+        _decisionWriter = new StreamWriter(Path.Combine(_outputDir, "decisions_" + label + "_" + _runId + ".csv"));
+        _decisionWriter.WriteLine("run_id,condition,seed,time_s,agent,brain,from_action,to_action,is_interrupt," +
+                                  "hunger,energy,winning_score,inertia_applied,abandoned_elapsed,abandoned_duration");
+
+        _needWriter = new StreamWriter(Path.Combine(_outputDir, "needs_" + label + "_" + _runId + ".csv"));
+        _needWriter.WriteLine("run_id,condition,seed,time_s,agent,brain,need,value");
+
+        WriteConfigManifest(seed, extraConfig);
+        _running = true;
+    }
+
+    /// <summary>Flushes and closes the current run, printing a short summary.</summary>
+    public void EndRun()
+    {
+        if (!_running) return;
+        _running = false;
+
+        var summary = new StringBuilder();
+        summary.AppendLine("[DecisionLogger] " + ConditionLabel + " finished after " + ElapsedTime.ToString("F1") + "s");
         foreach (var track in _tracks)
         {
-            string a = track.Core.AgentLabel;
-            m.AppendLine($"{a}.brain,{track.BrainName}");
-            m.AppendLine($"{a}.decision_interval_s,{F(track.Core.DecisionInterval)}");
-            m.AppendLine($"{a}.min_action_duration_s,{F(track.Core.MinActionDuration)}");
-
-            if (track.Utility != null)
-            {
-                m.AppendLine($"{a}.activation_threshold,{F(track.Utility.ActivationThreshold)}");
-                m.AppendLine($"{a}.commitment_bonus,{F(track.Utility.CommitmentBonus)}");
-                foreach (var mapping in track.Utility.Curves)
-                {
-                    string need = mapping.Need != null ? mapping.Need.NeedName : "?";
-                    string curve = mapping.Curve != null ? mapping.Curve.name : "none";
-                    m.AppendLine($"{a}.curve.{need},{curve}");
-                }
-            }
-
-            var baseline = track.Core.GetComponent<BaselineAgent>();
-            if (baseline != null)
-            {
-                foreach (var rule in baseline.Rules)
-                {
-                    if (rule.Need == null) continue;
-                    m.AppendLine($"{a}.threshold.{rule.Need.NeedName},{F(rule.Threshold)}");
-                }
-            }
-
-            if (track.Metabolism != null)
-            {
-                foreach (var need in track.Metabolism.Needs)
-                    m.AppendLine($"{a}.decay_rate.{need.Type.NeedName},{F(need.Type.BaseDecayRate)}");
-            }
+            float perMinute = ElapsedTime > 0f ? track.DecisionCount / (ElapsedTime / 60f) : 0f;
+            summary.AppendLine("  " + track.Core.AgentLabel + " (" + track.BrainName + "): " +
+                               track.DecisionCount + " decisions, " +
+                               track.InterruptCount + " interrupts, " +
+                               perMinute.ToString("F2") + " decisions/min");
         }
+        Debug.Log(summary.ToString());
 
-        foreach (var obj in FindObjectsByType<SmartObject>(FindObjectsSortMode.None))
-        {
-            if (obj.Template == null) continue;
-            foreach (var aff in obj.Template.Affordances)
-            {
-                m.AppendLine($"object.{obj.Template.ObjectName}.{aff.ActionName}.amount,{F(aff.Amount)}");
-                m.AppendLine($"object.{obj.Template.ObjectName}.{aff.ActionName}.duration_s,{F(aff.Duration)}");
-            }
-        }
-
-        File.WriteAllText(Path.Combine(dir, $"config_{ConditionLabel}_{_runId}.csv"), m.ToString());
+        Close();
     }
 
     void Update()
     {
-        if (_finished) return;
+        if (!_running) return;
 
         ElapsedTime += Time.deltaTime;
 
@@ -163,7 +161,7 @@ public class DecisionLogger : MonoBehaviour
             string current = track.Core.CurrentActionName;
             if (current == track.LastAction) continue;
 
-            // Returning to idle is not a decision, but it does end the previous action.
+            // Returning to idle ends an action but is not itself a decision.
             if (!string.IsNullOrEmpty(current))
             {
                 bool isInterrupt = !string.IsNullOrEmpty(track.LastAction);
@@ -183,8 +181,7 @@ public class DecisionLogger : MonoBehaviour
             WriteNeedSamples();
         }
 
-        if (RunDuration > 0f && ElapsedTime >= RunDuration)
-            Finish();
+        if (RunDuration > 0f && ElapsedTime >= RunDuration) EndRun();
     }
 
     private void WriteDecision(AgentTrack track, string from, string to, bool isInterrupt)
@@ -202,9 +199,14 @@ public class DecisionLogger : MonoBehaviour
             }
         }
 
+        // Only meaningful on an interrupt: how far through the abandoned action the agent got.
+        string elapsed = isInterrupt ? F(track.Core.LastAbandonedElapsed) : "";
+        string duration = isInterrupt ? F(track.Core.LastAbandonedDuration) : "";
+
         _decisionWriter.WriteLine(string.Join(",",
             _runId,
             ConditionLabel,
+            _seed.ToString(CultureInfo.InvariantCulture),
             F(ElapsedTime),
             track.Core.AgentLabel,
             track.BrainName,
@@ -214,7 +216,9 @@ public class DecisionLogger : MonoBehaviour
             F(track.Metabolism.GetValue("Hunger")),
             F(track.Metabolism.GetValue("Energy")),
             track.Utility != null ? F(score) : "",
-            track.Utility != null ? (inertia ? "1" : "0") : ""));
+            track.Utility != null ? (inertia ? "1" : "0") : "",
+            elapsed,
+            duration));
     }
 
     private void WriteNeedSamples()
@@ -226,6 +230,7 @@ public class DecisionLogger : MonoBehaviour
                 _needWriter.WriteLine(string.Join(",",
                     _runId,
                     ConditionLabel,
+                    _seed.ToString(CultureInfo.InvariantCulture),
                     F(ElapsedTime),
                     track.Core.AgentLabel,
                     track.BrainName,
@@ -235,36 +240,97 @@ public class DecisionLogger : MonoBehaviour
         }
     }
 
-    private void Finish()
+    /// <summary>
+    /// Records every parameter that shaped this run, so a CSV can always be traced
+    /// back to the configuration that produced it.
+    /// </summary>
+    private void WriteConfigManifest(int seed, string extraConfig)
     {
-        if (_finished) return;
-        _finished = true;
+        _seed = seed;
+        var m = new StringBuilder();
+        m.AppendLine("run_id," + _runId);
+        m.AppendLine("condition," + ConditionLabel);
+        m.AppendLine("seed," + seed);
+        m.AppendLine("run_duration_s," + F(RunDuration));
+        m.AppendLine("time_scale," + F(Time.timeScale));
+        m.AppendLine("sample_interval_s," + F(SampleInterval));
+        m.AppendLine("unity_version," + Application.unityVersion);
+        m.AppendLine("recorded_at," + System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-        var summary = new StringBuilder();
-        summary.AppendLine($"[DecisionLogger] Run {_runId} finished after {ElapsedTime:F1}s");
         foreach (var track in _tracks)
         {
-            float perMinute = ElapsedTime > 0f ? track.DecisionCount / (ElapsedTime / 60f) : 0f;
-            summary.AppendLine(
-                $"  {track.Core.AgentLabel} ({track.BrainName}): " +
-                $"{track.DecisionCount} decisions, {track.InterruptCount} interrupts, " +
-                $"{perMinute:F2} decisions/min");
-        }
-        Debug.Log(summary.ToString());
+            string a = track.Core.AgentLabel;
+            m.AppendLine(a + ".brain," + track.BrainName);
+            m.AppendLine(a + ".decision_interval_s," + F(track.Core.DecisionInterval));
+            m.AppendLine(a + ".min_action_duration_s," + F(track.Core.MinActionDuration));
 
-        Close();
+            if (track.Utility != null)
+            {
+                m.AppendLine(a + ".activation_threshold," + F(track.Utility.ActivationThreshold));
+                m.AppendLine(a + ".commitment_bonus," + F(track.Utility.CommitmentBonus));
+                m.AppendLine(a + ".curve_count," + track.Utility.Curves.Count);
+                foreach (var mapping in track.Utility.Curves)
+                {
+                    string need = mapping.Need != null ? mapping.Need.NeedName : "?";
+                    string curve = mapping.Curve != null ? mapping.Curve.name : "none";
+                    m.AppendLine(a + ".curve." + need + "," + curve);
+                }
+            }
+
+            var baseline = track.Core.GetComponent<BaselineAgent>();
+            if (baseline != null)
+            {
+                foreach (var rule in baseline.Rules)
+                {
+                    if (rule.Need == null) continue;
+                    m.AppendLine(a + ".threshold." + rule.Need.NeedName + "," + F(rule.Threshold));
+                }
+            }
+
+            if (track.Metabolism != null)
+            {
+                foreach (var need in track.Metabolism.Needs)
+                {
+                    m.AppendLine(a + ".decay_rate." + need.Type.NeedName + "," + F(need.Type.BaseDecayRate));
+                    m.AppendLine(a + ".initial." + need.Type.NeedName + "," + F(need.CurrentValue));
+                }
+            }
+        }
+
+        foreach (var obj in FindObjectsByType<SmartObject>(FindObjectsSortMode.None))
+        {
+            if (obj.Template == null) continue;
+            string on = obj.isActiveAndEnabled ? "1" : "0";
+            m.AppendLine("object." + obj.Template.ObjectName + ".enabled," + on);
+            foreach (var aff in obj.Template.Affordances)
+            {
+                m.AppendLine("object." + obj.Template.ObjectName + "." + aff.ActionName + ".amount," + F(aff.Amount));
+                m.AppendLine("object." + obj.Template.ObjectName + "." + aff.ActionName + ".duration_s," + F(aff.Duration));
+            }
+        }
+
+        if (!string.IsNullOrEmpty(extraConfig)) m.Append(extraConfig);
+
+        File.WriteAllText(Path.Combine(_outputDir, "config_" + ConditionLabel + "_" + _runId + ".csv"), m.ToString());
     }
 
     private void Close()
     {
-        Time.timeScale = 1f;
         if (_decisionWriter != null) { _decisionWriter.Flush(); _decisionWriter.Dispose(); _decisionWriter = null; }
         if (_needWriter != null) { _needWriter.Flush(); _needWriter.Dispose(); _needWriter = null; }
     }
 
-    void OnDisable() { Finish(); }
+    void OnDisable()
+    {
+        if (_running) EndRun();
+        Time.timeScale = 1f;
+    }
 
-    void OnApplicationQuit() { Finish(); }
+    void OnApplicationQuit()
+    {
+        if (_running) EndRun();
+        Time.timeScale = 1f;
+    }
 
     private static string F(float value) => value.ToString("F3", CultureInfo.InvariantCulture);
 }

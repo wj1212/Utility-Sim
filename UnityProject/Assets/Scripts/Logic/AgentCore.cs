@@ -36,6 +36,28 @@ public class AgentCore : MonoBehaviour
 
     public AgentMetabolism Metabolism => _metabolism;
 
+    // Captured at the instant an action is abandoned, so a logger can record how far
+    // through the action the agent got. Travel time is excluded.
+    public float LastAbandonedElapsed { get; private set; }
+    public float LastAbandonedDuration { get; private set; }
+
+    /// <summary>
+    /// Clears all decision state so the agent can start a fresh run.
+    /// Used by AblationRunner between conditions.
+    /// </summary>
+    public void ResetState()
+    {
+        CurrentState = AgentState.Idle;
+        CurrentActionName = "";
+        _currentTarget = null;
+        _interactionTimer = 0f;
+        _decisionTimer = 0f;
+        _actionElapsed = 0f;
+        LastAbandonedElapsed = 0f;
+        LastAbandonedDuration = 0f;
+        if (_movement != null) _movement.Stop();
+    }
+
     void Start()
     {
         _metabolism = GetComponent<AgentMetabolism>();
@@ -106,6 +128,8 @@ public class AgentCore : MonoBehaviour
                 && decision.ChosenAffordance.ActionName != CurrentActionName)
             {
                 Debug.Log($"[{AgentLabel}] INTERRUPT {CurrentActionName} -> {decision.ChosenAffordance.ActionName}");
+                LastAbandonedElapsed = _actionElapsed;
+                LastAbandonedDuration = _currentAffordance.Duration;
                 BeginPursuit(decision);
                 return;
             }
