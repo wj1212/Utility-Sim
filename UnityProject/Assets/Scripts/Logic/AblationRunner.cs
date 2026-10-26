@@ -107,6 +107,11 @@ public class AblationRunner : MonoBehaviour
 
     private IEnumerator RunAll()
     {
+        // Wait one frame so every agent's Start has run. AgentMetabolism builds its need
+        // list there and sets each value to 1, which would otherwise overwrite our seeded
+        // starting values on the very first run.
+        yield return null;
+
         Time.timeScale = TimeScale;
         _logger.RunDuration = SecondsPerRun;
 
