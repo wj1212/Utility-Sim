@@ -1,4 +1,6 @@
 condition,run_id,agent,brain,duration_s,decisions,decisions_per_min,interrupts,interrupt_rate,mean_trigger_need,conflict_decisions
+demo,20260807_111646,Baseline,Baseline,55.1,7,7.62,0,0.0,0.292,0
+demo,20260807_111646,Utility,Utility,55.5,7,7.57,0,0.0,0.29,0
 run_01,20260806_134122,Baseline,Baseline,299.3,22,4.41,4,0.182,0.293,0
 run_01,20260806_134122,Utility,Utility,293.7,27,5.52,9,0.333,0.456,0
 run_02,20260806_134252,Baseline,Baseline,299.9,22,4.4,1,0.045,0.291,0
