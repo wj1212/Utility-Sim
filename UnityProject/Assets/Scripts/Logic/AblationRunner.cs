@@ -114,6 +114,7 @@ public class AblationRunner : MonoBehaviour
 
         Time.timeScale = TimeScale;
         _logger.RunDuration = SecondsPerRun;
+        AgentCore.VerboseLogging = false;
 
         Debug.Log("[AblationRunner] Starting " + RunsTotal + " runs at " + TimeScale + "x. " +
                   "Estimated wall clock: " +
@@ -144,6 +145,7 @@ public class AblationRunner : MonoBehaviour
         }
 
         Restore();
+        AgentCore.VerboseLogging = true;
         Time.timeScale = 1f;
         CurrentCondition = "done";
         Debug.Log("[AblationRunner] ALL RUNS COMPLETE. " + RunsDone + " runs written to " + _logger.OutputDirectory);
@@ -220,6 +222,7 @@ public class AblationRunner : MonoBehaviour
     void OnDisable()
     {
         Restore();
+        AgentCore.VerboseLogging = true;
         Time.timeScale = 1f;
     }
 }

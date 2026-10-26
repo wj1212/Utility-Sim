@@ -4,6 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(AgentMovement))]
 public class AgentCore : MonoBehaviour
 {
+    /// <summary>
+    /// Per-decision console logging. AblationRunner turns this off, since a batch of
+    /// runs would otherwise push tens of thousands of lines into the Console.
+    /// </summary>
+    public static bool VerboseLogging = true;
+
     public enum AgentState { Idle, Moving, Interacting }
 
     [Header("Display")]
@@ -104,7 +110,7 @@ public class AgentCore : MonoBehaviour
             _interactionTimer = _currentAffordance.Duration;
             _actionElapsed = 0f;
             CurrentState = AgentState.Interacting;
-            Debug.Log($"[{AgentLabel}] Started {CurrentActionName} for {_interactionTimer:F1}s");
+            if (VerboseLogging) Debug.Log($"[{AgentLabel}] Started {CurrentActionName} for {_interactionTimer:F1}s");
         }
     }
 
@@ -127,7 +133,7 @@ public class AgentCore : MonoBehaviour
                 && decision.Target != null
                 && decision.ChosenAffordance.ActionName != CurrentActionName)
             {
-                Debug.Log($"[{AgentLabel}] INTERRUPT {CurrentActionName} -> {decision.ChosenAffordance.ActionName}");
+                if (VerboseLogging) Debug.Log($"[{AgentLabel}] INTERRUPT {CurrentActionName} -> {decision.ChosenAffordance.ActionName}");
                 LastAbandonedElapsed = _actionElapsed;
                 LastAbandonedDuration = _currentAffordance.Duration;
                 BeginPursuit(decision);
@@ -137,7 +143,7 @@ public class AgentCore : MonoBehaviour
 
         if (_interactionTimer <= 0f)
         {
-            Debug.Log($"[{AgentLabel}] Finished {CurrentActionName}");
+            if (VerboseLogging) Debug.Log($"[{AgentLabel}] Finished {CurrentActionName}");
             EndInteraction();
         }
     }
@@ -153,7 +159,7 @@ public class AgentCore : MonoBehaviour
         Vector3 dest = _currentTarget.transform.position + (Vector3)(sideways * SideOffset);
         _movement.MoveTo(dest);
         CurrentState = AgentState.Moving;
-        Debug.Log($"[{AgentLabel}] Decide -> {CurrentActionName} @ {_currentTarget.name}");
+        if (VerboseLogging) Debug.Log($"[{AgentLabel}] Decide -> {CurrentActionName} @ {_currentTarget.name}");
     }
 
     private void EndInteraction()

@@ -44,6 +44,8 @@ public class AgentMetabolism : MonoBehaviour
             need.CurrentValue = Mathf.Clamp01(need.CurrentValue);
         }
 
+        if (!AgentCore.VerboseLogging) return;
+
         _logTimer += Time.deltaTime;
         if (_logTimer >= 5f)
         {
