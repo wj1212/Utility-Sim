@@ -27,3 +27,13 @@ MemoryCaptures/
 # OS generated
 .DS_Store
 Thumbs.db
+
+# Unity crash recovery
+UnityProject/Assets/_Recovery/
+UnityProject/Assets/_Recovery.meta
+
+# Claude Code
+.claude/
+
+# Reference PDFs (copyrighted, kept locally)
+*.pdf
