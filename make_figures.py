@@ -682,6 +682,7 @@ def main():
     if pair:
         fig_timeline(pair)
         fig_traces(pair)
+        fig_problem(pair)
     else:
         print("  !! no seed collapsed without inertia and survived with it")
 
@@ -692,6 +693,38 @@ def main():
     print(sw.to_string(index=False))
     print("  phases (pooled, utility agent)")
     print(ph.to_string(index=False))
+
+
+
+
+# ------------------------------------------- 13: the problem, on its own
+def fig_problem(pair):
+    """The opening slide: one run, no commentary, so the thrashing speaks first."""
+    seed, pa, pb, ra, rb = pair
+    fig, ax = plt.subplots(figsize=(9.0, 1.9))
+    d = utility_rows(pa).sort_values("time_s").reset_index(drop=True)
+    end = 300.0
+    for i, r in d.iterrows():
+        t0 = r.time_s
+        t1 = d.time_s.iloc[i + 1] if i + 1 < len(d) else end
+        ax.add_patch(Rectangle((t0, 0), max(t1 - t0 - 0.35, 0.25), 1,
+                               facecolor=ACTION_COL.get(r.to_action, MUTED),
+                               edgecolor="none"))
+    ax.set_xlim(0, end)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    for s in ("top", "right", "left", "bottom"):
+        ax.spines[s].set_visible(False)
+    ax.set_xlabel("time  (seconds)")
+    ax.set_xticks(range(0, 301, 50))
+    ax.tick_params(length=0, labelcolor=MUTED)
+    handles = [Rectangle((0, 0), 1, 1, facecolor=ACTION_COL[a]) for a in ("Eat", "Sleep")]
+    ax.legend(handles, ["eating", "sleeping"], loc="upper left",
+              bbox_to_anchor=(0, -0.55), ncol=2)
+    ax.text(300, -0.62, f"{ra*100:.0f}% of this agent's decisions abandoned "
+                        f"something already in progress",
+            transform=ax.get_xaxis_transform(), ha="right", fontsize=11, color=CRIT)
+    save(fig, "fig_13_problem.png")
 
 
 if __name__ == "__main__":

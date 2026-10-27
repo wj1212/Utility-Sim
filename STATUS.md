@@ -40,11 +40,13 @@ threshold agent was finally used as a comparison rather than just a control.
 
 ## The story, shortest version
 
-1. In calm conditions none of this is measurable. Effects sit below the 4.9 pp noise
-   floor, so a benchmark run in a benign scenario would say these mechanisms are not
-   worth implementing.
-2. Remove a resource for a minute and the picture inverts. Without inertia the agent
-   collapses in roughly half the runs. With it, never.
+1. In calm conditions the averages show nothing. Effects sit below the 4.9 pp noise
+   floor. But 5 of 16 no-inertia runs collapse there and 0 of 16 inertia runs do, worst
+   case 99% against 41%. **Inertia is a reliability mechanism, not a performance one:**
+   it does not move the median, it removes the tail. An evaluation reporting only means
+   would conclude these mechanisms are not worth implementing, and would be wrong.
+2. Remove a resource for a minute and the effect becomes impossible to miss. Without
+   inertia the agent collapses in roughly half the runs. With it, never.
 3. The damage is in the recovery, not the shortage. Nothing happens while the fridge is
    gone, because there is only one option. It breaks when both needs become urgent at
    once.
@@ -62,11 +64,12 @@ tested: two needs is too few for ranking to matter.
 
 | | |
 |---|---|
-| Both decks | not started |
-| Charts | none exist yet; the U-shaped sweep curve is the one the talk needs |
-| Literature | still two sources; a thesis needs far more |
+| Both PPTX files | **content written, formatting not done.** Wenjie is building the slides from `DECK_5MIN.md` and `DECK_DETAILED.md` |
+| Unity screenshot | the one asset still missing; needed on 4 slides |
+| Charts | **done.** 13 figures in `Figures/`, rebuilt by `python make_figures.py` |
+| Literature | **8 sources listed** in `REFERENCES.md`, none read in full |
 | Written chapters | none |
-| Adaptability metric | only an implicit proxy (time below 0.15 after recovery) |
+| Adaptability metric | only an implicit proxy (time below 0.15 after recovery); proposed to Amini on detailed slide 30 |
 | Agent interference | known 4.9 pp noise; fixed by running one agent per run, not yet done |
 
 ---
