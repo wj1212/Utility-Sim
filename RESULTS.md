@@ -96,7 +96,7 @@ show a measurable contribution from the response curve.**
 **Lowest interruption frequency at 0.30, rising again by 0.50.**
 
 The rise is not a ratio artefact: decisions per minute are flat from 0.2 onward
-(8.9, 8.7, 8.5), and interrupts per minute rise 2.0 to 3.2. Paired by seed, 0.50 is
+(8.9, 8.7, 8.5), and interrupts per minute rise 2.0 to 3.1. Paired by seed, 0.50 is
 worse than 0.30 in **7 of 8 seeds**, mean difference **+12.5 pp**, well clear of the
 noise floor.
 
