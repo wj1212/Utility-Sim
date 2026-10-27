@@ -27,7 +27,7 @@ The whole Fall plan from the August deck, in one day:
 | August commitment | state |
 |---|---|
 | Stability metric | done, plus the old contamination traced and shown to be gone |
-| Adaptability scenario | scenario built and run; an adaptability **metric** was never formally defined |
+| Adaptability scenario | done, and the metric exists after all: February defined adaptability as time without reaching a critical failure state under resource scarcity, which is exactly the collapse count plus time below 0.15 after recovery. It was measured and never labelled. |
 | Seeded randomization | done, 8 seeds, reproducible |
 | Four-condition ablation | done in both scenarios, plus a strength sweep that was not promised |
 
@@ -69,7 +69,7 @@ tested: two needs is too few for ranking to matter.
 | Charts | **done.** 13 figures in `Figures/`, rebuilt by `python make_figures.py` |
 | Literature | **8 sources listed** in `REFERENCES.md`, none read in full |
 | Written chapters | none |
-| Adaptability metric | only an implicit proxy (time below 0.15 after recovery); proposed to Amini on detailed slide 30 |
+| The August adaptability idea | "how long the agent keeps going to a resource that isn't there any more" cannot be measured as built: `ResourceOutage` calls `SetActive(false)` and `FindObjectsByType` skips inactive objects, so the fridge leaves the agent's perception entirely. Measuring it needs the object to stay visible with a dead affordance instead. |
 | Agent interference | known 4.9 pp noise; fixed by running one agent per run, not yet done |
 
 ---
@@ -95,8 +95,9 @@ The 5-minute deck should be rebuilt, not trimmed down.
 
 - **The title.** "Response Curves and Action Inertia" promises two results and only one
   arrived. Ask whether to narrow it or report the null. Do not change it unilaterally.
-- **Adaptability.** The scenario exists but the metric was never defined. Ask what he
-  expects it to measure.
+- **Adaptability.** Measured, but under the name "collapse" rather than "adaptability".
+  Confirm the mapping is what he expected, and say that the specific metric floated in
+  August needs the outage reimplemented to leave the object visible but broken.
 - **Scope.** Is one perturbation type and two needs enough, or should a third need be
   added so the curve has something to rank?
 
