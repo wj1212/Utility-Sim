@@ -1,3 +1,14 @@
+> **方向已变，内容待重写。**
+>
+> 新计划：**沿用八月那份 pptx 的十个章节标题**（那是教授给的模板），把
+> "Pilot Testing and Findings" 扩成五六页，而不是这份文件里的 33 页自定义结构。
+> 依据：Dikshant 的五分钟 deck 不用那套标题，二十分钟那份用的是完整骨架。
+>
+> 另外这份里写着 adaptability "metric not defined"，**那是错的** —— 二月的定义就是
+> 崩溃计数加恢复期时间，一直测着，只是没贴标签。见 `DevLog_2026_10_27.md`。
+
+---
+
 # Detailed deck: content sheet
 
 The second file Amini asked for: "a longer one going over details with results."

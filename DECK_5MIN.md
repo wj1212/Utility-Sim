@@ -1,3 +1,12 @@
+> **已被取代，不要照这份做。**
+>
+> 讲稿看 `演讲稿_中文.md`（2026-10-27 重写，中文，自带上下文）。
+>
+> 这份留作记录。它有三处已知问题：把阈值规则说成"从来不比较"（是贬低，而且不准确）、
+> 结构是按 slide 预算写的不是按内容、以及若干没有数据支撑的说法。
+
+---
+
 # Five-minute deck: content sheet
 
 Everything needed to build the slides. Figures are in `Figures/`. Every number

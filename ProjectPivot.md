@@ -1,5 +1,9 @@
 # Project Pivot — Spring 2026
 
+> **Written April 2026. The strategy still holds; the status sections do not.**
+> For where things actually stand, read `STATUS.md`. Everything in section 6's
+> "Missing" list has since been built.
+>
 > A north-star document. Read this before making decisions about scope, slides, or code.
 > If something we're about to do doesn't map to this page, stop and ask whether we're drifting.
 
