@@ -267,12 +267,50 @@ it, then handles the other.
 
 > Taking the resource away is not what breaks the agent. Giving it back is.
 
-## 8. Unresolved: why the curve shows nothing
+## 8. Why the curve shows nothing: the design minimised its own effect
 
-Working hypothesis, not tested. With only two needs there is rarely a subtle ranking to
-make: whichever need is lower is the more urgent one, and a straight line orders two
-values the same way a curve does. The curve's shape should only matter when several
-options are close together, which needs more than two needs to arise.
+The two curve conditions were deliberately matched at the activation threshold, so that
+switching the curve off would not also change *when* the agent starts acting. Both cross
+theta = 0.71 at need 0.29 to 0.30 (section 11's figure shows this).
 
-A third need would be the direct test, and it would serve the half of the title that
-currently has no result.
+That was the right call for isolating shape from timing. It also had a cost that was not
+noticed until the decision logs were examined directly.
+
+**Where decisions actually happen**, pooled over 3,972 logged decisions in the normal
+scenario:
+
+| percentile | need value at decision |
+|---|---|
+| 25th | 0.11 |
+| **50th** | **0.28** |
+| 75th | 0.49 |
+
+**How far apart the two mappings are at those values:**
+
+| need | tuned curve | linear | difference |
+|---|---|---|---|
+| 0.2 | 0.85 | 0.80 | +0.05 |
+| **0.3** | **0.71** | **0.70** | **+0.01** |
+| 0.5 | 0.35 | 0.50 | -0.15 |
+| 0.7 | 0.15 | 0.30 | -0.15 |
+
+The median decision happens at need 0.28. At 0.30 the two mappings differ by **0.01**.
+Where they differ most, around 0.5 to 0.7, sits above the 75th percentile, so the agent
+rarely decides anything there.
+
+> The two conditions were made nearly identical in the region where the agent actually
+> operates, and then asked whether they differ.
+
+**So the null is at least partly a statement about this experiment's sensitivity, not
+about response curves.** The earlier hypothesis in this section, that two needs is too
+few for ranking to matter, may still hold, but it is untested and this one is visible in
+the data.
+
+Three fixes, cheapest first:
+
+1. **Separate the two mappings where decisions happen** (need 0.15 to 0.45) rather than
+   only at the tails, and rerun. Directly targets the null.
+2. **One agent per run.** Seeding already guarantees the pairing, so separate runs lose
+   no information and remove all 4.9 pp of interference.
+3. **A third need**, to test whether curve shape starts to matter once several options
+   score close together.
