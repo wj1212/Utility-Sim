@@ -41,7 +41,7 @@ The threshold agent runs alongside in every condition as an external reference.
 
 ---
 
-## 1. Under easy conditions, nothing is measurable
+## 1. Under easy conditions the average shows nothing, and the tail shows everything
 
 | condition | median interrupt rate | interrupts/min |
 |---|---|---|
@@ -54,8 +54,23 @@ Main effects: inertia **+4.3 pp**, curve **-5.4 pp**.
 
 **Both are below the measured noise floor of 4.9 pp (section 4), so neither is reportable.**
 
-The useful reading is the negative one: benchmark these mechanisms in a calm scenario
-and the conclusion would be that they are not worth implementing.
+That was where this section stopped until the runs were plotted one seed at a time
+rather than summarised. The medians hold up, and they hide the result:
+
+| calm scenario | median | worst run | collapses |
+|---|---|---|---|
+| without inertia | 24.4% | **99%** | **5 / 16** |
+| with inertia | 28.0% | 41% | **0 / 16** |
+
+The typical run is the same either way, and inertia makes the median slightly *worse*.
+But without it, roughly one calm run in three ends in total thrashing, and with it, none
+do. The worst case falls from 99% to 41%.
+
+**So inertia is a reliability mechanism, not a performance mechanism.** That is why the
+median never moves and the collapse count always does, here and under stress. An
+evaluation that reports only means or medians would conclude these mechanisms are not
+worth implementing, and would be wrong for the reason that matters in a shipped game:
+the failure is rare, not small.
 
 ---
 
@@ -202,10 +217,18 @@ The threshold agent ran alongside the utility agent in all 104 runs, which makes
 possible to answer the question a developer would actually ask: is utility scoring worth
 the extra complexity over simple threshold rules?
 
+"Tuned utility agent" here means the full configuration, curve on and inertia on, which
+is 8 runs per scenario. The threshold agent ran in all four ablation cells, so it has 32.
+
 | scenario | threshold agent | tuned utility agent |
 |---|---|---|
-| normal | 2.1 interrupts/min, 4 of 32 collapsed | 2.3 interrupts/min, 0 of 16 collapsed |
-| outage | 13.2 interrupts/min, 13 of 32 collapsed | 2.3 interrupts/min, 0 of 16 collapsed |
+| normal | 2.1 interrupts/min, 4 of 32 collapsed | 2.3 interrupts/min, 0 of 8 collapsed |
+| outage | 13.2 interrupts/min, 13 of 32 collapsed | 2.3 interrupts/min, 0 of 8 collapsed |
+
+(An earlier draft of this table quoted the 2.3 from this cell but a collapse count from
+both inertia cells pooled. Pooling both gives 2.7 and 2.5 interrupts/min and 0 of 16
+collapsed in each scenario, which is the stronger statement but a different denominator.
+One definition per row.)
 
 > In calm conditions the two are indistinguishable. Once the environment changes, the
 > threshold agent collapses in roughly 40 percent of runs and the tuned utility agent
