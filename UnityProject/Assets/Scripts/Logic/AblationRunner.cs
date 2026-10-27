@@ -38,6 +38,14 @@ public class AblationRunner : MonoBehaviour
         new Condition { Name = "curve_inertia",    UseCurves = true,  CommitmentBonus = 0.2f },
     };
 
+    [Header("Inertia Sweep (overrides Conditions when on)")]
+    [Tooltip("Replace the 2x2 with a sweep over inertia strength, curve always on. " +
+             "Answers how much inertia is right rather than whether it helps at all.")]
+    public bool UseInertiaSweep = false;
+
+    [Tooltip("Commitment bonus values to sweep.")]
+    public List<float> InertiaSweepValues = new List<float> { 0f, 0.1f, 0.2f, 0.3f, 0.5f };
+
     [Header("Repeats")]
     [Tooltip("How many seeded repeats to run per condition.")]
     public int SeedsPerCondition = 8;
@@ -108,8 +116,28 @@ public class AblationRunner : MonoBehaviour
             _originalBonus = _utility.CommitmentBonus;
         }
 
+        if (UseInertiaSweep) BuildSweepConditions();
+
         RunsTotal = Conditions.Count * SeedsPerCondition;
         StartCoroutine(RunAll());
+    }
+
+    /// <summary>
+    /// Replaces the 2x2 with one condition per inertia value, curve always on.
+    /// </summary>
+    private void BuildSweepConditions()
+    {
+        Conditions = new List<Condition>();
+        foreach (float bonus in InertiaSweepValues)
+        {
+            Conditions.Add(new Condition
+            {
+                Name = "inertia" + Mathf.RoundToInt(bonus * 100f).ToString("D3"),
+                UseCurves = true,
+                CommitmentBonus = bonus
+            });
+        }
+        Debug.Log("[AblationRunner] Inertia sweep: " + Conditions.Count + " values.");
     }
 
     private IEnumerator RunAll()
