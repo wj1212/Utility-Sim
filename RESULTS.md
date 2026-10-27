@@ -52,7 +52,15 @@ The threshold agent runs alongside in every condition as an external reference.
 
 Main effects: inertia **+4.3 pp**, curve **-5.4 pp**.
 
-**Both are below the measured noise floor of 4.9 pp (section 4), so neither is reportable.**
+The measured noise floor is 4.9 pp (section 4). Inertia's effect sits inside it. The
+curve's is 5.4, which is marginally larger, so "both are inside the noise" (as an earlier
+draft of this section said) is arithmetically wrong.
+
+**The defensible statement is that neither effect can be resolved at this sample size.**
+The curve's effect runs in the same direction in both scenarios, -5.4 pp calm and -3.6 pp
+under outage, so it may well be real and small; with 8 seeds and 4.9 pp of agent
+interference it cannot be separated from noise. More seeds, or one agent per run, would
+settle it.
 
 That was where this section stopped until the runs were plotted one seed at a time
 rather than summarised. The medians hold up, and they hide the result:
