@@ -192,3 +192,56 @@ Sections map to this document: NOISE FLOOR to section 4, ABLATION 2x2 to section
 Each run also writes `config_<label>_<runid>.csv` next to its data, listing every
 parameter in force, so any single run can be traced back to the configuration that
 produced it.
+
+
+---
+
+## 6. The headline that matters to a practitioner
+
+The threshold agent ran alongside the utility agent in all 104 runs, which makes it
+possible to answer the question a developer would actually ask: is utility scoring worth
+the extra complexity over simple threshold rules?
+
+| scenario | threshold agent | tuned utility agent |
+|---|---|---|
+| normal | 2.1 interrupts/min, 4 of 32 collapsed | 2.3 interrupts/min, 0 of 16 collapsed |
+| outage | 13.2 interrupts/min, 13 of 32 collapsed | 2.3 interrupts/min, 0 of 16 collapsed |
+
+> In calm conditions the two are indistinguishable. Once the environment changes, the
+> threshold agent collapses in roughly 40 percent of runs and the tuned utility agent
+> never does.
+
+This reframes the contribution. The study is not only "how much does each mechanism add"
+but "when does utility AI earn its complexity", and the answer has a condition attached:
+it depends on whether the environment is going to change.
+
+## 7. The damage is in the recovery, not the shortage
+
+Interruptions by phase of the outage runs, utility agent, pooled across 8 runs each:
+
+| condition | before (0-100s) | during (100-160s) | after (160s+) |
+|---|---|---|---|
+| linear, no inertia | 59% | **0%** | 93% |
+| curve, no inertia | 58% | **0%** | 92% |
+| linear, inertia | 30% | **0%** | 38% |
+| curve, inertia | 20% | **0%** | 34% |
+
+Nothing happens while the fridge is gone, in any condition. With one resource removed
+there is only one option left, so there is nothing to switch between.
+
+Everything happens when it comes back. Hunger is at zero, energy is wherever it happens
+to be, and for the first time both needs demand attention at once. Without inertia the
+agent oscillates between them and never recovers. With inertia it commits to one, fixes
+it, then handles the other.
+
+> Taking the resource away is not what breaks the agent. Giving it back is.
+
+## 8. Unresolved: why the curve shows nothing
+
+Working hypothesis, not tested. With only two needs there is rarely a subtle ranking to
+make: whichever need is lower is the more urgent one, and a straight line orders two
+values the same way a curve does. The curve's shape should only matter when several
+options are close together, which needs more than two needs to arise.
+
+A third need would be the direct test, and it would serve the half of the title that
+currently has no result.
