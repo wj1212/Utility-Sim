@@ -55,6 +55,13 @@ public class AblationRunner : MonoBehaviour
     [Tooltip("Starting need values are drawn uniformly from this range, same values for both agents.")]
     public Vector2 InitialNeedRange = new Vector2(0.30f, 1.0f);
 
+    [Header("Perturbation (optional)")]
+    [Tooltip("Assign a ResourceOutage to run the whole sweep with a resource taken away mid-run.")]
+    public ResourceOutage Outage;
+
+    [Tooltip("Prefix added to every label, so an outage sweep does not overwrite the normal one.")]
+    public string LabelPrefix = "";
+
     [Header("Progress (Read-Only)")]
     public string CurrentCondition = "";
     public int CurrentSeed;
@@ -131,11 +138,13 @@ public class AblationRunner : MonoBehaviour
                 CurrentSeed = seed;
 
                 ResetWorld(seed);
+                if (Outage != null && Outage.IsConfigured) Outage.BeginWindow();
 
                 // Let the reset settle for a frame before recording starts.
                 yield return null;
 
-                _logger.BeginRun(condition.Name + "_s" + seed.ToString("D2"), seed, DescribeCondition(condition));
+                _logger.BeginRun(LabelPrefix + condition.Name + "_s" + seed.ToString("D2"),
+                                 seed, DescribeCondition(condition));
 
                 while (_logger.IsRunning) yield return null;
 
@@ -145,6 +154,7 @@ public class AblationRunner : MonoBehaviour
         }
 
         Restore();
+        if (Outage != null) Outage.Clear();
         AgentCore.VerboseLogging = true;
         Time.timeScale = 1f;
         CurrentCondition = "done";
@@ -208,6 +218,16 @@ public class AblationRunner : MonoBehaviour
         sb.AppendLine("ablation.seeds_per_condition," + SeedsPerCondition);
         sb.AppendLine("ablation.initial_need_min," + InitialNeedRange.x.ToString("F3"));
         sb.AppendLine("ablation.initial_need_max," + InitialNeedRange.y.ToString("F3"));
+        if (Outage != null && Outage.IsConfigured)
+        {
+            sb.AppendLine("outage.target," + Outage.Target.name);
+            sb.AppendLine("outage.start_s," + Outage.StartSeconds.ToString("F1"));
+            sb.AppendLine("outage.end_s," + Outage.EndSeconds.ToString("F1"));
+        }
+        else
+        {
+            sb.AppendLine("outage.target,none");
+        }
         return sb.ToString();
     }
 
