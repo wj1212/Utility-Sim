@@ -132,19 +132,47 @@ def slide_problem():
 
 # =========================================================== 2. the curve
 def slide_curves():
-    """One claim: it can be straight, or it can be bent."""
-    xs = np.linspace(0, 1, 400)
-    fig, ax = plt.subplots(figsize=(7.6, 4.2))
-    ax.plot(xs, 1 - xs, "-", color=GREY, linewidth=2.2, zorder=2)
-    ax.plot(xs, curve(xs), "-", color=ACCENT, linewidth=3.2, zorder=3)
-    ax.text(0.79, 1 - 0.79 + 0.06, "straight", color="#8f8d88", fontsize=13)
-    ax.text(0.58, curve(np.array([0.58]))[0] - 0.10, "bent", color=ACCENT,
-            fontsize=14, fontweight="bold")
-    ax.set_xlabel("need      (1 = satisfied,  0 = empty)", color="#7a7974")
-    ax.set_ylabel("desire to act", color="#7a7974")
-    ax.set_xlim(0, 1); ax.set_ylim(0, 1.04)
-    ax.set_xticks([0, 0.5, 1]); ax.set_yticks([0, 0.5, 1])
-    bare(ax)
+    """One claim: it can be straight, or it can be bent.
+
+    The axis tells the reader which end is which, so the chart does not need
+    a parenthetical to explain itself. Labels sit where the two lines are
+    furthest apart, on short leaders, instead of crowding the curve.
+    """
+    xs = np.linspace(0, 1, 500)
+    yl, yc = 1 - xs, curve(xs)
+
+    fig, ax = plt.subplots(figsize=(8.0, 4.4))
+
+    ax.plot(xs, yl, "-", color="#c9c7c1", linewidth=3.0,
+            solid_capstyle="round", zorder=2)
+    ax.plot(xs, yc, "-", color=ACCENT, linewidth=4.0,
+            solid_capstyle="round", zorder=3)
+
+    # label where the gap is widest, on short leaders
+    gap = np.argmax(np.abs(yc - yl))
+    gx = xs[gap]
+    ax.annotate("straight", xy=(gx, yl[gap]), xytext=(gx + 0.10, yl[gap] + 0.17),
+                color="#8a8884", fontsize=15, ha="left", va="center",
+                arrowprops=dict(arrowstyle="-", color="#d4d2cc", linewidth=1.4))
+    ax.annotate("bent", xy=(gx, yc[gap]), xytext=(gx - 0.12, yc[gap] - 0.17),
+                color=ACCENT, fontsize=16, fontweight="bold", ha="right",
+                va="center",
+                arrowprops=dict(arrowstyle="-", color=ACCENT, linewidth=1.4))
+
+    ax.set_xlim(-0.015, 1.015)
+    ax.set_ylim(-0.03, 1.06)
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["empty", "satisfied"], fontsize=15, color="#5a5955")
+    ax.set_yticks([])
+    ax.set_xlabel("how full the need is", fontsize=13.5, color="#8a8884", labelpad=10)
+    ax.set_ylabel("how much it wants to act", fontsize=13.5, color="#8a8884",
+                  labelpad=14)
+
+    for sp in ("top", "right", "left"):
+        ax.spines[sp].set_visible(False)
+    ax.spines["bottom"].set_color("#e4e2dc")
+    ax.spines["bottom"].set_linewidth(1.4)
+    ax.tick_params(length=0, pad=9)
     save(fig, "slide_curves.png")
 
 
