@@ -127,10 +127,25 @@ The two ends fail differently:
 
 - **Too little (0.00):** indecision. Completion at abandon is 0.41, so actions are
   dropped early, and conflicts run at 60 per run because both needs crash together.
-- **Too much (0.50):** neglect. Completion is 0.86, so the agent leaves late, and time
-  spent below 0.15 after the resource returns is **15x** that at 0.30 (1.5% vs 0.1%).
-  It commits so hard that the other need is driven into crisis, and then the crisis is
-  what forces the switch.
+- **Too much (0.50):** it switches later and deeper. Completion at abandonment is 0.86,
+  so it leaves near the end of an action, and the competing need has fallen to **0.19**
+  before it moves, against **0.27** at bonus 0.20 and 0.30.
+
+> **Correction, 27 October.** This bullet previously read "time spent below 0.15 after
+> the resource returns is 15x that at 0.30 (1.5% vs 0.1%)". That figure is not
+> reproducible. No code in this repository computes it, and no reasonable reading of
+> "time below 0.15 after recovery" gets near it: counting decisions after t=160 where
+> either need is under 0.15 gives 4.2% at bonus 0.30 against 5.0% at 0.50, a ratio of
+> 1.2, and requiring both needs under 0.15 gives zero in both.
+>
+> The claim it supported, that over-commitment drives the other need into crisis, also
+> does not hold: decisions taken with both needs critical are flat from bonus 0.10
+> onward (11.4, 10.5, 10.2, 10.1 percent).
+>
+> What survives is the later-and-deeper switching above, which does reproduce.
+> **Why there are also more interruptions at 0.50 is unexplained.** Decisions per run
+> are flat (354, 344, 337 from bonus 0.20), so the rise is real: 99, 81, 122
+> interruptions. No verified mechanism for it yet.
 
 Both of these were written down as risks in the March deck, before any of this data
 existed: *too strong and the agent sleeps through survival emergencies, too weak and it

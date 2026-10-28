@@ -406,7 +406,7 @@ Too little (0.00)   completion at abandon 0.41, leaves early, nothing finishes
                     60 conflicts per run, both needs crash together
 
 Too much (0.50)     completion at abandon 0.86, leaves late
-                    time below 0.15 after recovery is 15x that at 0.30
+                    the competing need has fallen to 0.19 before it moves, vs 0.27
 ```
 
 **Say** "Both ends fail, differently. At zero the agent leaves too early. At zero point
