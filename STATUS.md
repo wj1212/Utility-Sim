@@ -74,9 +74,12 @@ threshold agent was finally used as a comparison rather than just a control.
 
 | | |
 |---|---|
-| The 5-minute talk | **script done** in `演讲稿_中文.md`, Chinese. Still to do: read it aloud and mark awkward lines, then translate plainly into English, then format the slides. |
+| The 5-minute talk | **scripts done in both languages.** `演讲稿_中文.md` for meaning, `演讲稿_英文.md` to read aloud, slide by slide with what goes on each one. Estimated 6 minutes 20 seconds; not yet timed aloud. |
+| The slides | **being built by Wenjie** from the English script. 17 slides. Build order when short of time: 1, 10, 7, 14, 15, 17 first. |
+| The figures | **not yet redrawn.** The existing set is too busy: each chart should make one point, everything else greyed. The four the talk uses are `fig_13_problem`, `fig_09_curves`, `fig_03_collapse_dots`, `fig_01_sweep`. `fig_09` also needs its third line dropped: it draws the threshold agent as a desire curve, but `BaselineAgent.Decide()` never evaluates a curve. |
 | The detailed deck | not written. Plan: reuse the ten section headings from the August deck (they are a template the professor supplied) and expand "Pilot Testing and Findings" into five or six slides. |
 | Unity screenshot | the one asset only Wenjie can make; a top-down shot showing both agents, the fridge and the bed |
+| `DecisionLogger.AutoStart` | still on. It records an unlabelled run on every Play, which is where the partial `demo` records come from. Harmless now that incomplete runs are excluded, but it should be off while AblationRunner drives the logger. |
 | Charts | **done.** 13 figures in `Figures/`, rebuilt by `python make_figures.py` |
 | Literature | **8 sources listed** in `REFERENCES.md`, none read in full |
 | Written chapters | none |
