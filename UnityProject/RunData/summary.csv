@@ -31,8 +31,6 @@ curve_noinertia_s07,20261026_145113_216,normal,curve_noinertia,7,Baseline,Baseli
 curve_noinertia_s07,20261026_145113_216,normal,curve_noinertia,7,Utility,Utility,299.7,150,30.03,149,29.83,0.993,0.183,0.083,0.029,147,True
 curve_noinertia_s08,20261026_145143_219,normal,curve_noinertia,8,Baseline,Baseline,298.2,47,9.46,9,1.81,0.191,0.738,0.479,0.291,0,False
 curve_noinertia_s08,20261026_145143_219,normal,curve_noinertia,8,Utility,Utility,294.3,47,9.58,10,2.04,0.213,0.739,0.478,0.29,0,False
-demo,20260807_111646,normal,demo,,Baseline,Baseline,55.1,7,7.62,0,0.0,0.0,,,0.292,0,False
-demo,20260807_111646,normal,demo,,Utility,Utility,55.5,7,7.57,0,0.0,0.0,,,0.29,0,False
 linear_inertia_s01,20261026_144413_167,normal,linear_inertia,1,Baseline,Baseline,295.1,47,9.56,10,2.03,0.213,0.731,0.478,0.291,0,False
 linear_inertia_s01,20261026_144413_167,normal,linear_inertia,1,Utility,Utility,297.8,48,9.67,13,2.62,0.271,0.806,0.492,0.277,0,False
 linear_inertia_s02,20261026_144443_171,normal,linear_inertia,2,Baseline,Baseline,299.1,47,9.43,12,2.41,0.255,0.753,0.484,0.291,0,False

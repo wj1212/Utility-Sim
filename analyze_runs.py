@@ -38,6 +38,11 @@ CRITICAL = 0.32
 # started. Runs like that are a qualitatively different failure, not a worse average.
 COLLAPSE = 0.80
 
+# Runs shorter than this did not finish: play mode was stopped early, or the editor
+# crashed. A run that did not finish is not a run, so it is excluded and reported.
+# AblationRunner writes 300 simulated seconds per run.
+MIN_DURATION = 290.0
+
 ABLATION = ["linear_noinertia", "linear_inertia", "curve_noinertia", "curve_inertia"]
 
 # Which need each action restores, used to judge how far an abandoned action got.
@@ -338,6 +343,18 @@ def main():
         rec.update(summarise(rows))
         rec["signature"] = config_signature(RUN_DIR, label, run_id)
         records.append(rec)
+
+    # Drop anything that did not run to completion, and say so rather than filtering
+    # silently. Silent filtering is how a wrong number survives.
+    short = [r for r in records if r["duration_s"] < MIN_DURATION]
+    if short:
+        records = [r for r in records if r["duration_s"] >= MIN_DURATION]
+        print("EXCLUDED: %d incomplete run(s), shorter than %.0f simulated seconds"
+              % (len(short), MIN_DURATION))
+        for r in sorted(short, key=lambda x: (x["label"], x["agent"])):
+            print("   %-26s %-10s %s  %.0f s" % (r["label"], r["agent"], r["run_id"],
+                                                 r["duration_s"]))
+        print()
 
     report_runs(records)
     report_repeats(records)

@@ -1,0 +1,3 @@
+run_id,condition,seed,time_s,agent,brain,from_action,to_action,is_interrupt,hunger,energy,winning_score,inertia_applied,abandoned_elapsed,abandoned_duration
+20261027_201404_275,demo,-1,0.446,Utility,Utility,idle,Eat,0,0.287,0.447,0.713,0,,
+20261027_201404_275,demo,-1,0.446,Baseline,Baseline,idle,Eat,0,0.287,0.447,,,,

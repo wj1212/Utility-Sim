@@ -25,6 +25,9 @@ RUN_DIR = os.path.join(ROOT, "UnityProject", "RunData")
 OUT_DIR = os.path.join(ROOT, "Figures")
 
 OUTAGE_START, OUTAGE_END = 100.0, 160.0
+
+# A run shorter than this did not finish. Same rule as analyze_runs.py.
+MIN_DURATION = 290.0
 COLLAPSE = 0.80
 ACTIVATION = 0.71          # the utility agent's score threshold
 ABLATION = ["linear_noinertia", "linear_inertia", "curve_noinertia", "curve_inertia"]
@@ -98,13 +101,24 @@ def load_summary():
 
 
 def decision_files():
-    """label -> path, for the newest file per label."""
-    out = {}
+    """label -> path. Picks the longest run per label, not the newest.
+
+    Sorting by name would let an aborted rerun shadow the complete original,
+    which is how a 100-second fragment ended up in the 27 October numbers.
+    """
+    best = {}
     for p in sorted(glob.glob(os.path.join(RUN_DIR, "decisions_*.csv"))):
         base = os.path.basename(p)[len("decisions_"):-len(".csv")]
         label = base.rsplit("_", 3)[0]
-        out[label] = p
-    return out
+        try:
+            end = pd.read_csv(p, usecols=["time_s"]).time_s.max()
+        except Exception:
+            continue
+        if end < MIN_DURATION:
+            continue
+        if label not in best or end > best[label][1]:
+            best[label] = (p, end)
+    return {k: v[0] for k, v in best.items()}
 
 
 def utility_rows(path):
