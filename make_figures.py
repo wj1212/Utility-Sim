@@ -213,7 +213,7 @@ def fig_collapse_dots(summary):
     """The median hides this; the dots do not. Calm beside outage, deliberately."""
     fig, axes = plt.subplots(1, 2, figsize=(9.4, 3.1), sharey=True,
                              gridspec_kw=dict(wspace=0.46))
-    for ax, scen, head in [(axes[0], "normal", "Calm"),
+    for ax, scen, head in [(axes[0], "normal", "Nothing removed"),
                            (axes[1], "outage", "Resource removed for 60 s")]:
         for row, cond in enumerate(ABLATION):
             d = summary[(summary.scenario == scen) & (summary.condition == cond) &
@@ -254,7 +254,7 @@ def fig_ablation_strip(summary, noise_pp):
     fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.5), sharey=True,
                              gridspec_kw=dict(wspace=0.08))
     rng = np.random.default_rng(7)
-    for ax, scen, head in [(axes[0], "normal", "Calm"),
+    for ax, scen, head in [(axes[0], "normal", "Nothing removed"),
                            (axes[1], "outage", "Resource removed for 60 s")]:
         for row, cond in enumerate(ABLATION):
             d = summary[(summary.scenario == scen) & (summary.condition == cond) &
