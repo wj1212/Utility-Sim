@@ -106,27 +106,40 @@ def curve(xs):
 
 # =========================================================== 1. the problem
 def slide_problem():
-    """One claim: it abandoned most of what it started."""
+    """One claim: it dropped most of what it started.
+
+    A taller bar reads better from the back of a room, and the axis says
+    "5 minutes" rather than counting seconds nobody needs.
+    """
     # the 81% run: outage, linear, no inertia, seed 2
     path = best_file("outage_linear_noinertia_s02")
     d = pd.read_csv(path)
     d = d[d.agent == "Utility"].sort_values("time_s").reset_index(drop=True)
 
-    fig, ax = plt.subplots(figsize=(9.0, 1.9))
+    fig, ax = plt.subplots(figsize=(9.2, 2.6))
     for i, r in d.iterrows():
         t0 = r.time_s
         t1 = d.time_s.iloc[i + 1] if i + 1 < len(d) else 300.0
-        ax.add_patch(Rectangle((t0, 0), max(t1 - t0 - 0.4, 0.3), 1,
+        ax.add_patch(Rectangle((t0, 0), max(t1 - t0 - 0.5, 0.35), 1,
                                facecolor=ACCENT if r.to_action == "Eat" else ORANGE,
                                edgecolor="none"))
-    ax.set_xlim(0, 300); ax.set_ylim(0, 1); ax.set_yticks([])
-    ax.set_xticks(range(0, 301, 60))
-    ax.set_xlabel("time  (seconds)", color="#7a7974")
-    bare(ax)
-    handles = [Rectangle((0, 0), 1, 1, facecolor=ACCENT),
-               Rectangle((0, 0), 1, 1, facecolor=ORANGE)]
-    ax.legend(handles, ["eating", "sleeping"], loc="upper left",
-              bbox_to_anchor=(0, -0.45), ncol=2, fontsize=12)
+
+    # legend as two inline swatches above the bar, no box, no frame
+    for x, col, lab in [(2, ACCENT, "eating"), (46, ORANGE, "sleeping")]:
+        ax.add_patch(Rectangle((x, 1.16), 11, 0.20, facecolor=col,
+                               edgecolor="none", clip_on=False))
+        ax.text(x + 15, 1.26, lab, va="center", fontsize=13.5, color="#5a5955")
+
+    ax.set_xlim(0, 300)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    ax.set_xticks([0, 300])
+    ax.set_xticklabels(["", "5 minutes"], fontsize=13.5, color="#8a8884")
+    for sp in ("top", "right", "left"):
+        ax.spines[sp].set_visible(False)
+    ax.spines["bottom"].set_color("#e4e2dc")
+    ax.spines["bottom"].set_linewidth(1.4)
+    ax.tick_params(length=0, pad=8)
     save(fig, "slide_problem.png")
 
 
